@@ -1,0 +1,5 @@
+{
+  "name": "android-compose-review",
+  "description": "Code-review orchestrator for Jetpack Compose Android apps (Clean Architecture + MVVM + Hilt). Reviews a diff/branch/PR for correctness bugs and routes Compose/Kotlin idioms to 13 bundled focused skills.",
+  "version": "1.0.0"
+}

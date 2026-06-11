@@ -1,0 +1,13 @@
+{
+  "name": "android-skills",
+  "owner": {
+    "name": "anjas29"
+  },
+  "plugins": [
+    {
+      "name": "android-compose-review",
+      "source": "./plugins/android-compose-review",
+      "description": "Code-review orchestrator for Jetpack Compose Android apps (Clean Architecture + MVVM + Hilt), bundling 13 focused Compose/Kotlin review skills."
+    }
+  ]
+}
