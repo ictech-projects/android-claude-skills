@@ -18,12 +18,18 @@ development plugins to the whole team, across any project.
   to ≥90% coverage; detects MockK vs Mockito, JUnit version, and error model. Bundles the full
   ruleset (`reference/`) and MockK/Mockito templates (`templates/`).
 
+**`android-codegen-non-ui`** — data-layer generator:
+- **`android-codegen-non-ui`** — generates the non-UI data layer (Retrofit API → Repository →
+  UseCase, + Room/Paging/DI) from a Scramble/Laravel OpenAPI JSON. Two-stage **Plan → Generate**
+  pipeline with a mandatory developer review gate. Assumes `com.ictechnology.core`.
+
 ## Install (per teammate)
 
 ```text
 /plugin marketplace add anjas29/android-claude-skills
 /plugin install android-compose-review@android-skills
 /plugin install android-unit-testing@android-skills
+/plugin install android-codegen-non-ui@android-skills
 ```
 
 Works for this **private** repo as long as your `git`/`gh` is authenticated to the org.
@@ -62,6 +68,14 @@ Write tests with the testing plugin:
 ```text
 /android-unit-testing:android-unit-testing LeaveViewModel    # write tests for a class
 /android-unit-testing:android-unit-testing                    # let it pick scope from context
+```
+
+Generate a data layer from an OpenAPI spec (place it at `codegen/openapi.json` first):
+
+```text
+/android-codegen-non-ui:android-codegen-non-ui plan          # Stage 1–2: plan.yaml + preview, then STOP
+# review/edit codegen/plan.yaml (fill shared_models decisions + base_package)
+/android-codegen-non-ui:android-codegen-non-ui generate      # Stage 3: write Kotlin into src/
 ```
 
 ## Update

@@ -1,0 +1,5 @@
+{
+  "name": "android-codegen-non-ui",
+  "description": "Generate the non-UI data layer (Retrofit API → Repository → UseCase, + Room/Paging/DI) for Clean Architecture Android apps from a Scramble/Laravel OpenAPI JSON. Two-stage pipeline with a mandatory human review gate: Plan (plan.yaml + plan-preview.md) then Generate. Assumes the com.ictechnology.core library.",
+  "version": "1.0.0"
+}
