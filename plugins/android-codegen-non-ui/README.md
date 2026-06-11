@@ -14,7 +14,7 @@ code from an unreviewed plan.
 ## Install
 
 ```text
-/plugin marketplace add anjas29/android-claude-skills
+/plugin marketplace add ictech-projects/android-claude-skills
 /plugin install android-codegen-non-ui@android-skills
 ```
 

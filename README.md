@@ -22,7 +22,7 @@ layers → **unit-testing** tests them → **compose-review** reviews the diff.
 One-time, per machine — add the marketplace, then install the plugins you want:
 
 ```text
-/plugin marketplace add anjas29/android-claude-skills
+/plugin marketplace add ictech-projects/android-claude-skills
 /plugin install android-compose-review@android-skills
 /plugin install android-unit-testing@android-skills
 /plugin install android-codegen-non-ui@android-skills
@@ -53,7 +53,7 @@ when they trust the repo:
 {
   "extraKnownMarketplaces": {
     "android-skills": {
-      "source": { "source": "github", "repo": "anjas29/android-claude-skills" }
+      "source": { "source": "github", "repo": "ictech-projects/android-claude-skills" }
     }
   }
 }

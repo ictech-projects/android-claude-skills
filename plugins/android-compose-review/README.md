@@ -7,7 +7,7 @@ idiom to one of **13 bundled focused skills** (`compose-*`, `kotlin-*`) instead 
 ## Install
 
 ```text
-/plugin marketplace add anjas29/android-claude-skills
+/plugin marketplace add ictech-projects/android-claude-skills
 /plugin install android-compose-review@android-skills
 ```
 

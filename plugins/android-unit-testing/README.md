@@ -8,7 +8,7 @@ and error model rather than assuming, and supports both **MockK** and **Mockito*
 ## Install
 
 ```text
-/plugin marketplace add anjas29/android-claude-skills
+/plugin marketplace add ictech-projects/android-claude-skills
 /plugin install android-unit-testing@android-skills
 ```
 

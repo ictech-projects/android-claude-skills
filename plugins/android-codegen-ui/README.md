@@ -15,7 +15,7 @@ It generates **only `features/presentation/`** — never `domain/` or `data/` (t
 ## Install
 
 ```text
-/plugin marketplace add anjas29/android-claude-skills
+/plugin marketplace add ictech-projects/android-claude-skills
 /plugin install android-codegen-ui@android-skills
 ```
 
