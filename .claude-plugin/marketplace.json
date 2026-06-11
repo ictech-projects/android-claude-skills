@@ -8,6 +8,11 @@
       "name": "android-compose-review",
       "source": "./plugins/android-compose-review",
       "description": "Code-review orchestrator for Jetpack Compose Android apps (Clean Architecture + MVVM + Hilt), bundling 13 focused Compose/Kotlin review skills."
+    },
+    {
+      "name": "android-unit-testing",
+      "source": "./plugins/android-unit-testing",
+      "description": "Generate and review unit tests for Clean Architecture + MVVM Android apps (Repository / UseCase / ViewModel) to ≥90% coverage; detects MockK vs Mockito, JUnit version, and error model."
     }
   ]
 }

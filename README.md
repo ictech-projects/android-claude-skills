@@ -1,21 +1,29 @@
 # android-claude-skills — Claude Code skill marketplace (private)
 
-A private [Claude Code](https://code.claude.com) marketplace that distributes the
-**`android-compose-review`** plugin to the whole team, across any Android project.
+A private [Claude Code](https://code.claude.com) marketplace that distributes Android
+development plugins to the whole team, across any project.
 
-The plugin bundles:
-- **`android-compose-code-review`** — a thin review orchestrator: it reviews a diff/branch/PR
-  for correctness bugs and routes Compose/Kotlin idioms to the focused skills below.
+### Plugins
+
+**`android-compose-review`** — code-review orchestrator:
+- **`android-compose-code-review`** — reviews a diff/branch/PR for correctness bugs and
+  routes Compose/Kotlin idioms to the focused skills below.
 - **13 focused skills** — `compose-*` and `kotlin-*`, vendored from
   [`chrisbanes/skills`](https://github.com/chrisbanes/skills) (Apache-2.0; see
   `plugins/android-compose-review/ATTRIBUTION.md`).
 - **`scripts/verify-skills.sh`** — CI gate asserting the bundle stays intact.
+
+**`android-unit-testing`** — test generation/review:
+- **`android-unit-testing`** — writes/reviews unit tests for Repository / UseCase / ViewModel
+  to ≥90% coverage; detects MockK vs Mockito, JUnit version, and error model. Bundles the full
+  ruleset (`reference/`) and MockK/Mockito templates (`templates/`).
 
 ## Install (per teammate)
 
 ```text
 /plugin marketplace add anjas29/android-claude-skills
 /plugin install android-compose-review@android-skills
+/plugin install android-unit-testing@android-skills
 ```
 
 Works for this **private** repo as long as your `git`/`gh` is authenticated to the org.
@@ -48,6 +56,13 @@ In any Android project, after install:
 
 The orchestrator auto-invokes the focused skills as needed. The focused skills are also
 usable directly, e.g. `/android-compose-review:compose-stability-diagnostics`.
+
+Write tests with the testing plugin:
+
+```text
+/android-unit-testing:android-unit-testing LeaveViewModel    # write tests for a class
+/android-unit-testing:android-unit-testing                    # let it pick scope from context
+```
 
 ## Update
 

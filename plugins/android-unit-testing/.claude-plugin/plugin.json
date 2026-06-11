@@ -1,0 +1,5 @@
+{
+  "name": "android-unit-testing",
+  "description": "Generate and review unit tests for Clean Architecture + MVVM Android apps (Repository / UseCase / ViewModel) targeting ≥90% line coverage. Detects the project's mocking library, JUnit version, and error model; supports MockK and Mockito.",
+  "version": "1.0.0"
+}
