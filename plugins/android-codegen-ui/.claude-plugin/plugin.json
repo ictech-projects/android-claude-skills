@@ -1,0 +1,5 @@
+{
+  "name": "android-codegen-ui",
+  "description": "Generate Jetpack Compose UI (screens + ViewModel/UiState/Event/FieldState, reusable components, icons, strings, permissions) from a Figma design for Clean Architecture Android apps. Six-stage pipeline (0–5) with a mandatory human review gate after Plan. Scope is features/presentation only — never domain/data. Requires the Figma MCP server; assumes com.ictechnology.app + Material 3.",
+  "version": "1.0.0"
+}

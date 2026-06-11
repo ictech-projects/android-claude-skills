@@ -15,6 +15,7 @@ derived from. **Reference / log only** — nothing here is loaded by Claude Code
 | `unit_testing_rules/unit_testing_rules.md` + `templates/` | `unit_testing_rules/` | `android-unit-testing` |
 | `codegen/android-codegen-rules.md` | `codegen/` | `android-codegen-non-ui` |
 | `codegen/android-non-ui-rules.md` | `codegen/` | `android-codegen-non-ui` |
+| `ui-code/compose-ui-agent-guidelines.md` + `ui-codegen-pipeline.{md,yaml}` + `ui-plan*.template.*` | UI codegen source | `android-codegen-ui` |
 | `compose-review/android-compose-code-review.SKILL.md` | `.claude/skills/android-compose-code-review/SKILL.md` (project-local, pre-plugin) | `android-compose-review` (portable rewrite) |
 | `compose-review/verify-skills.sh` | `.claude/skills/verify-skills.sh` (project-local) | `android-compose-review/scripts/` |
 

@@ -18,6 +18,11 @@
       "name": "android-codegen-non-ui",
       "source": "./plugins/android-codegen-non-ui",
       "description": "Generate the non-UI data layer (Retrofit API → Repository → UseCase, + Room/Paging/DI) from a Scramble/Laravel OpenAPI JSON. Two-stage Plan→Generate pipeline with a developer review gate. Assumes com.ictechnology.core."
+    },
+    {
+      "name": "android-codegen-ui",
+      "source": "./plugins/android-codegen-ui",
+      "description": "Generate Jetpack Compose UI (screens + ViewModel/UiState/Event/FieldState, components, icons, strings, permissions) from a Figma design. Six-stage pipeline with a developer review gate; generates features/presentation only. Requires the Figma MCP server."
     }
   ]
 }

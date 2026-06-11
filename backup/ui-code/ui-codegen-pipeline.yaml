@@ -1,0 +1,262 @@
+# Machine-readable stage definitions for the Compose UI code-generation pipeline.
+# Human-readable companion: codegen/ui-codegen-pipeline.md
+# Rules source of truth:     codegen/compose-ui-agent-guidelines.md
+#
+# Mirrors the non-UI pipeline (plan.yaml + plan-preview.md): staged 0..5 with a single
+# human gate after Stage 2 (Plan). Generation runs only against a reviewed ui-plan.yaml.
+
+meta:
+  pipeline: compose-ui-codegen
+  version: 0.0.1
+  ruleset: codegen/compose-ui-agent-guidelines.md
+  base_package: com.ictechnology.app   # derived from the app module namespace
+  # base_package_path = base_package with '.' -> '/'  (mechanical transform).
+  base_package_path: "{derive: base_package | replace('.', '/')}"  # e.g. com/ictechnology/app
+  ui_root: app/src/main/java/{base_package_path}/features/presentation
+  component_root: app/src/main/java/{base_package_path}/features/presentation/component
+  component_package: com.ictechnology.app.features.presentation.component
+  drawable_root: app/src/main/res/drawable
+  strings_file: app/src/main/res/values/strings.xml
+  manifest_file: app/src/main/AndroidManifest.xml
+  figma_tools:
+    - mcp__plugin_figma_figma__get_metadata
+    - mcp__plugin_figma_figma__get_design_context
+    - mcp__plugin_figma_figma__get_screenshot
+    - mcp__plugin_figma_figma__get_variable_defs
+    - mcp__plugin_figma_figma__get_code_connect_map
+  # OUT OF SCOPE (Rule 16): never generate domain/ or data/ layers here.
+  out_of_scope:
+    - features/domain
+    - features/data
+    - "**/repository"
+    - "**/usecase"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# STAGES
+# ─────────────────────────────────────────────────────────────────────────────
+stages:
+
+  # ===========================================================================
+  - id: 0
+    name: Preconditions
+    purpose: >-
+      Verify the project scaffolding the rules assume actually exists, BEFORE
+      reading any design. Produces a gate report only — generates no code.
+    depends_on: []
+    rules_ref: [R1, R3, R4, R9, R13]
+    inputs:
+      - project tree
+    actions:
+      - check: AppTheme exists with BOTH lightColorScheme and darkColorScheme
+        rule: R4.1
+      - check: MaterialTheme typography + shapes tokens defined
+        rule: "R3.2, R3.4"
+      - check: "features.presentation.component package present"
+        rule: R13.1
+      - check: Spacing scale (4.dp multiples) available or to-be-created
+        rule: R3.5
+      - check: strings.xml writable and Compose BOM present, Material 3 only
+        rule: "R1.1, R9.1"
+    outputs:
+      - artifact: stage0-report
+        format: md
+        description: per-check pass/fail with proof path; single GREEN/RED verdict
+    gate:
+      requires_human: false
+      note: RED blocks the pipeline until scaffolding is fixed.
+
+  # ===========================================================================
+  - id: 1
+    name: Design Intake
+    purpose: >-
+      Read the design (Figma URL or pasted spec) and extract a structured ui-spec.
+      No file planning, no code.
+    depends_on: [0]
+    rules_ref: [R16.3, R2.4, R12.5, R11.3, R13, R14.1, R15.1]
+    inputs:
+      - design source (figma_url | design spec)
+    actions:
+      - if_figma_url: use figma_tools to read frames + variables
+      - for_each screen extract:
+          - screen_name and snake_case folder (R16.3)
+          - data fields shown            -> UiState candidates (R2.4)
+          - input fields / forms         -> FieldState candidates (R12.5)
+          - user actions / taps          -> Event candidates (R11.3)
+          - components used              -> features.presentation.component mapping (R13)
+          - icons referenced             -> icon-resolution candidates (R14.1)
+          - images (static vs remote)    -> drawable vs Coil (R14.5)
+          - image/file pickers present   -> permission-flow trigger (R15.1)
+    outputs:
+      - artifact: ui-spec.md
+        format: md
+        description: per-screen extraction of state, fields, actions, components, icons
+    gate:
+      requires_human: false
+
+  # ===========================================================================
+  - id: 2
+    name: Plan
+    purpose: >-
+      Turn ui-spec into a per-screen file map + component/icon/permission/string plan.
+      Produces both review artifacts, then STOPS at the human gate.
+    depends_on: [1]
+    rules_ref: [R12, R13, R14, R15, R16, R9, R2.4]
+    inputs:
+      - ui-spec.md
+      - existing features/presentation/component/ inventory
+      - existing app/src/main/res/drawable/ inventory
+    actions:
+      - per_screen_file_map:
+          rule: "R16.4, R12.2"
+          files:
+            - "{Feature}Screen.kt"        # Screen (stateful) + ScreenContent (R7.1)
+            - "{Feature}ViewModel.kt"     # ViewModel class ONLY (R12.0)
+            - "{Feature}UiState.kt"       # UiState data class + Dialog sealed class (R12.4)
+            - "{Feature}Event.kt"         # Event sealed class (R12.6)
+            - "{Feature}FieldState.kt"    # only if the screen has a form (R12.5)
+            - "{Feature}{Enum}.kt"        # one file per enum
+      - build_component_inventory:
+          rule: R13
+          classify_each_component_as:
+            - exists      # import & use from features.presentation.component
+            - create_new  # R13.2 / R13.4 — not in package, build stateless+preview
+      - build_icon_table:
+          rule: R14.1
+          resolve_each_icon_to_priority:
+            - 1_vector_from_design   # SVG -> VectorDrawable (preferred)
+            - 2_material_icon        # utility-only fallback
+            - 3_app_existing         # already in drawable_root
+            - 4_coil_remote          # dynamic API url
+      - build_permission_plan:
+          rule: R15
+          if_any_image_or_file_picker: emit camera+gallery flow + manifest + strings
+      - collect_strings:
+          rule: R9
+          all_user_facing_text: -> strings.xml keys (<screen>_<component>_<desc>)
+      - shared_composable_placement:
+          rule: R16.6
+          decide: screen-local | feature presentation/component | features.presentation.component
+    outputs:
+      - artifact: ui-plan.yaml
+        format: yaml
+        description: machine-readable plan with all per-screen file maps + decisions
+      - artifact: ui-plan-preview.md
+        format: md
+        description: human-readable review doc (folder tree + decisions summary)
+    decisions:                              # MUST be resolved before Stage 3 runs
+      - key: component_resolution
+        question: For each component — exists in features.presentation.component, or create new?
+        rule: R13
+      - key: shared_composable_placement
+        question: Screen-local vs feature presentation/component vs features.presentation.component for each shared composable?
+        rule: R16.6
+      - key: icon_source
+        question: Confirm the resolved priority for each ambiguous icon (esp. P1 vs P2).
+        rule: R14.1
+      - key: state_shape
+        question: sealed UiState vs single data-class UiState per screen?
+        rule: R2.4
+    gate:
+      requires_human: true
+      decisions_ref: [component_resolution, shared_composable_placement, icon_source, state_shape]
+      note: Stage 3 will not run until every decision above is set in ui-plan.yaml.
+
+  # ===========================================================================
+  - id: 3
+    name: Asset & Component Prep
+    purpose: >-
+      Materialise everything the screens will depend on, so Stage 4 only writes
+      screen Kotlin against already-present components, icons, strings & perms.
+    depends_on: [2]
+    rules_ref: [R13.2, R13.4, R14.2, R15.3, R9, R5]
+    inputs:
+      - ui-plan.yaml (with decisions resolved)
+    actions:
+      - for_each component[create_new]:
+          rule: "R13.2, R13.4"
+          steps:
+            - place under com.ictechnology.app.features.presentation.component.<subpackage>
+          requirements: [stateless, modifier-last, UiStyle-driven, light+dark @Preview, KDoc]
+      - for_each icon[priority=1_vector_from_design]:
+          rule: "R14.2, R14.6"
+          steps:
+            - export SVG from design
+            - convert to VectorDrawable
+            - place at drawable_root/ic_<feature>_<desc>.xml
+      - if_any_picker:
+          rule: R15.3
+          steps:
+            - add CAMERA / READ_MEDIA_IMAGES / READ_MEDIA_VIDEO / READ_EXTERNAL_STORAGE(max=32)
+            - add FileProvider + res/xml/file_paths.xml
+      - collect_strings:
+          rule: R9
+          target: strings_file
+    outputs:
+      - artifact: prepared component-package components, drawables, manifest entries, string keys
+    validations:
+      - No raw M3 component left in a screen where a features.presentation.component equivalent was required (R13.1)
+      - Every icon file follows ic_<feature>_<description>.xml (R14.6)
+    gate:
+      requires_human: false
+
+  # ===========================================================================
+  - id: 4
+    name: Screen Generation
+    purpose: >-
+      Generate one screen at a time. All files for a screen ship in one response,
+      each with a file-path comment + correct package.
+    depends_on: [3]
+    rules_ref: [R2, R3, R4, R5, R6, R7, R8.4, R9, R11, R12, R16.9]
+    inputs:
+      - ui-plan.yaml
+      - target screen name
+    actions:
+      - generate_all_files_for_screen:
+          rule: R16.9
+          files:
+            - "{Feature}Screen.kt"        # Screen + ScreenContent split (R7.1, R2)
+            - "{Feature}ViewModel.kt"     # @HiltViewModel, onEvent-only, update{}, Resource when (R11, R12.0)
+            - "{Feature}UiState.kt"       # UiState + Dialog sealed class (R12.4)
+            - "{Feature}Event.kt"         # Event sealed class (R12.6)
+            - "{Feature}FieldState.kt"    # only if has_form (R12.5)
+            - "{Feature}{Enum}.kt"        # one file per enum (R12.2)
+      - constraints:
+          - composable_rules        # stateless, modifier-last, tokens, previews, Surface (R2, R3, R5)
+          - viewmodel_rules         # @HiltViewModel, onEvent-only, update{}, Resource when (R11)
+          - file_structure_rules    # one-class-per-file, UiState/Event/FieldState separated (R12.2)
+          - package_structure_rules # under presentation/screen/{feature}, snake_case, flat (R16)
+          - component_rules         # features.presentation.component components, icon priority order (R13.1, R14.1)
+          - a11y_rules              # contentDescription, roles, 48dp targets (R6)
+          - no_business_logic       # no logic in composables, no hardcoded strings (R8.4, R9)
+    outputs:
+      - artifact: per-screen Kotlin files under features/presentation/screen/{feature}/
+    gate:
+      requires_human: false
+
+  # ===========================================================================
+  - id: 5
+    name: Validation
+    purpose: Self-check generated code against the rules, then build.
+    depends_on: [4]
+    rules_ref: [R12.2, R12.7, R11.3, R16, R13.1, R2, R5, R6, R9, R8.4]
+    inputs:
+      - generated screen files
+    actions:
+      - self_check:
+          report: "✅/❌ with file:line"
+          groups:
+            - one_class_per_file       # UiState/Event/FieldState separated (R12.2, R12.7)
+            - viewmodel_onEvent_only   # no extra public mutators (R11.3)
+            - package_matches_folder   # singular screen/component (R16.5)
+            - no_raw_m3_in_screen      # features.presentation.component equivalent used (R13.1)
+            - stateless_hoisted        # modifier last+defaulted (R2)
+            - previews_and_a11y        # light+dark @Preview (R5), a11y (R6)
+            - no_hardcoded_strings     # R9
+            - scope_clean              # no domain/data/repository/usecase (R16.7)
+      - build: run the project build and report the result
+      - on_any_failure: report the fix needed; do NOT auto-fix unless told
+    outputs:
+      - artifact: stage5-report
+        format: md
+    gate:
+      requires_human: false

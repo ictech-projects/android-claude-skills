@@ -1,0 +1,142 @@
+# Stage-2 output STUB for the Compose UI codegen pipeline.
+# Stage 2 (Plan) writes the real codegen/ui-plan.yaml in this shape.
+# Review this file, set every `decision`, then trigger Stage 3.
+#
+# Pipeline:        codegen/ui-codegen-pipeline.md / .yaml
+# Rules:           codegen/compose-ui-agent-guidelines.md
+# Human-readable:  codegen/ui-plan-preview.md  (mirrors ui-plan-preview.template.md)
+#
+# ⚠️ The `leave` and `profile` screens below are ILLUSTRATIVE examples. Stage 2 replaces
+#    them with the screens extracted from your design in Stage 1 (ui-spec.md).
+
+meta:
+  pipeline: compose-ui-codegen
+  plan_version: 0.0.1
+  base_package: com.ictechnology.app   # AUTO-DERIVED by Stage 2 from app module namespace
+  # Paths below are relative to:
+  #   app/src/main/java/{base_package_path}/   (here: app/src/main/java/com/ictechnology/app/)
+  ui_root: features/presentation
+  component_package: features/presentation/component                              # com.ictechnology.app.features.presentation.component
+  drawable_root: app/src/main/res/drawable
+  strings_file: app/src/main/res/values/strings.xml
+  manifest_file: app/src/main/AndroidManifest.xml
+  figma:
+    file_url: "<FIGMA_FILE_URL>"        # the design Stage 1 read from
+    frames: []                          # node ids / frame names analysed
+  # Theme + tokens confirmed present in Stage 0 (R3, R4). Do NOT regenerate AppTheme.
+  preconditions_passed: false           # set true once Stage 0 report is green
+
+# ─────────────────────────────────────────────────────────────────────────────
+# GLOBAL DECISIONS — REVIEW REQUIRED (apply across all screens)
+# ─────────────────────────────────────────────────────────────────────────────
+decisions:
+  - key: state_shape_default
+    rule: R2.4
+    question: Default UiState shape when a screen is not overridden below.
+    options: [data_class, sealed_class]
+    decision: data_class                 # data_class | sealed_class
+
+  - key: spacing_scale
+    rule: R3.5
+    question: Use an existing project Spacing object, or create one?
+    options: [exists, create]
+    decision: pending                    # exists | create
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SHARED ASSETS — REVIEW REQUIRED
+# Components / icons referenced by more than one screen, resolved ONCE here.
+# ─────────────────────────────────────────────────────────────────────────────
+shared:
+  components:
+    - name: AppButton
+      rule: R13.1
+      subpackage: button
+      status: exists                     # exists | create_new
+      decision: exists
+    - name: AppTextField
+      rule: R13.1
+      subpackage: textfield
+      status: exists
+      decision: exists
+    - name: AppDatePickerField
+      rule: R13.2
+      subpackage: picker
+      status: create_new                 # not in package -> create (R13.2 / R13.4)
+      decision: pending                  # create_new
+    - name: AppImagePickerField
+      rule: R13.2
+      subpackage: picker
+      status: create_new
+      decision: pending
+
+  # Composables reused by >1 screen in THIS feature -> presentation/component (R16.6)
+  feature_components:
+    - name: LeaveTypeBottomSheet
+      placement: presentation/component    # screen_local | presentation/component | features_component
+      used_by: [leave, leave_edit]
+      decision: pending
+
+  icons:
+    - name: ic_common_back_arrow
+      rule: R14.6
+      priority: 3_app_existing             # 1_vector_from_design | 2_material_icon | 3_app_existing | 4_coil_remote
+      file: app/src/main/res/drawable/ic_common_back_arrow.xml
+      decision: pending
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SCREENS  (one entry per screen extracted from the design)
+# ─────────────────────────────────────────────────────────────────────────────
+screens:
+  # ===== EXAMPLE 1 — form screen with enums + document upload =====
+  - name: leave
+    folder: features/presentation/screen/leave       # snake_case (R16.3)
+    package: com.ictechnology.app.features.presentation.screen.leave
+    state_shape: data_class                          # overrides decisions.state_shape_default
+    has_form: true
+    files:                                            # one class per file (R16.4, R12.2)
+      - { file: LeaveScreen.kt,             kind: screen,     rule: R7.1 }
+      - { file: LeaveViewModel.kt,          kind: viewmodel,  rule: R12.0 }
+      - { file: LeaveUiState.kt,            kind: uistate,    rule: R12.4 }
+      - { file: LeaveEvent.kt,              kind: event,      rule: R12.6 }
+      - { file: LeaveRequestFieldState.kt,  kind: fieldstate, rule: R12.5 }
+      - { file: LeaveDurationType.kt,       kind: enum,       rule: R12.2 }
+      - { file: LeaveTab.kt,                kind: enum,       rule: R12.2 }
+    components:
+      - { name: AppButton,            ref: shared }
+      - { name: AppTextField,         ref: shared }
+      - { name: AppDatePickerField,   ref: shared }
+      - { name: AppLoadingDialog,     status: exists, decision: exists }
+      - { name: LeaveTypeBottomSheet, ref: shared.feature_components }
+    icons:
+      - { name: ic_leave_calendar,   priority: 1_vector_from_design, decision: pending }
+      - { name: ic_leave_attachment, priority: 1_vector_from_design, decision: pending }
+    permissions:
+      trigger: document_picker                        # R15.1
+      plan: camera+gallery flow + manifest + file_paths.xml (R15.3)
+    strings:                                          # <screen>_<component>_<desc> (R9.2)
+      - leave_button_submit
+      - leave_placeholder_reason
+      - leave_label_duration
+
+  # ===== EXAMPLE 2 — profile screen with avatar (no form fields) =====
+  - name: profile
+    folder: features/presentation/screen/profile
+    package: com.ictechnology.app.features.presentation.screen.profile
+    state_shape: data_class
+    has_form: false                                   # -> no FieldState file
+    files:
+      - { file: ProfileScreen.kt,    kind: screen,    rule: R7.1 }
+      - { file: ProfileViewModel.kt, kind: viewmodel, rule: R12.0 }
+      - { file: ProfileUiState.kt,   kind: uistate,   rule: R12.4 }
+      - { file: ProfileEvent.kt,     kind: event,     rule: R12.6 }
+    components:
+      - { name: AppTopBar,           status: exists, decision: exists }
+      - { name: AppImagePickerField, ref: shared }
+    icons:
+      - { name: ic_common_back_arrow, ref: shared.icons }
+      - { name: ic_profile_edit,      priority: 1_vector_from_design, decision: pending }
+    permissions:
+      trigger: avatar_picker
+      plan: camera+gallery flow + manifest + file_paths.xml (R15.3)
+    strings:
+      - profile_label_photo
