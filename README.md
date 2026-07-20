@@ -13,6 +13,7 @@ Each plugin has its own page — click through for a brief and runnable commands
 | **android-unit-testing** | Write/review unit tests (Repository · UseCase · ViewModel) to ≥90% coverage; MockK or Mockito. | [→ docs](plugins/android-unit-testing/README.md) |
 | **android-codegen-non-ui** | Generate the data layer (API · Repository · UseCase + Room/Paging/DI) from an OpenAPI spec, Plan→Generate with a review gate. | [→ docs](plugins/android-codegen-non-ui/README.md) |
 | **android-codegen-ui** | Generate Compose UI (screens + ViewModel/UiState, components, icons, permissions) from a Figma design; six-stage pipeline with a review gate. Requires Figma MCP. | [→ docs](plugins/android-codegen-ui/README.md) |
+| **android-cert-pinning** | Extract SSL/TLS certificate SPKI pins (`sha256/...`) + expiry/CA metadata for a hostname; handy for refreshing pinning config. | [→ docs](plugins/android-cert-pinning/README.md) |
 
 They compose: **codegen-ui** (Figma→screens) + **codegen-non-ui** (OpenAPI→data) scaffold the
 layers → **unit-testing** tests them → **compose-review** reviews the diff.
@@ -27,6 +28,7 @@ One-time, per machine — add the marketplace, then install the plugins you want
 /plugin install android-unit-testing@android-skills
 /plugin install android-codegen-non-ui@android-skills
 /plugin install android-codegen-ui@android-skills
+/plugin install android-cert-pinning@android-skills
 ```
 
 Private repo — works as long as your `git`/`gh` is authenticated. For headless/CI, export

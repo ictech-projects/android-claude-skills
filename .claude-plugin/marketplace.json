@@ -23,6 +23,11 @@
       "name": "android-codegen-ui",
       "source": "./plugins/android-codegen-ui",
       "description": "Generate Jetpack Compose UI (screens + ViewModel/UiState/Event/FieldState, components, icons, strings, permissions) from a Figma design. Six-stage pipeline with a developer review gate; generates features/presentation only. Requires the Figma MCP server."
+    },
+    {
+      "name": "android-cert-pinning",
+      "source": "./plugins/android-cert-pinning",
+      "description": "Extract SSL/TLS certificate SPKI pins (\"sha256/...\") and metadata for a hostname — full served chain (leaf/intermediate/root) with pins, expiry, issuing CA, and key/signature algorithm. Handy for refreshing certificate-pinning config."
     }
   ]
 }

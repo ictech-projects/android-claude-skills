@@ -1,0 +1,5 @@
+{
+  "name": "android-cert-pinning",
+  "description": "Extract SSL/TLS certificate SPKI pins (the \"sha256/...\" values used for certificate pinning) and metadata for a hostname. Prints the full served chain — leaf, intermediate(s), and best-effort root — each with its sha256 pin, expiry, issuing CA, and key/signature algorithm. Handy for refreshing NetworkConfig pins.",
+  "version": "1.0.0"
+}
