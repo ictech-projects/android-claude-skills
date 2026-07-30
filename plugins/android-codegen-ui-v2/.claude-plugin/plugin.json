@@ -1,0 +1,5 @@
+{
+  "name": "android-codegen-ui-v2",
+  "description": "Token-optimized Jetpack Compose UI codegen from Figma for Clean Architecture Android apps. Same 16-rule ruleset as android-codegen-ui, but rules are split from code examples and each stage reads only the slice it needs — ~90% fewer repeated rule tokens per screen. Five-stage pipeline (0,2,3,4,5) with a human review gate after Plan (Stage 1 intake merged into Plan). Scope is features/presentation only — never domain/data. Requires the Figma MCP server; assumes com.ictechnology.app + Material 3.",
+  "version": "2.0.0"
+}
