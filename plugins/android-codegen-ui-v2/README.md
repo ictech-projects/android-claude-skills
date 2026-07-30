@@ -32,6 +32,24 @@ For a minimal splash screen (1 text, 1 icon, 1 loader), rule/doc tokens drop fro
 re-read-per-stage) to ~8k — because the full ruleset is never injected and the camera/gallery
 example is never loaded.
 
+### Structure: v1 → v2
+
+The single guideline file was split into an always-loaded normative spine + on-demand code
+patterns, so the tokens that used to reload every stage no longer do:
+
+| v1 | lines | v2 | lines | loaded |
+|---|---:|---|---:|---|
+| `compose-ui-agent-guidelines.md` (rules **and** code, monolithic) | 2043 | `reference/rules-compact.md` (R1–R16, **no code**) | 138 | always — the spine |
+| — | — | `reference/examples/composable.md` | 171 | only when a stage emits a composable |
+| — | — | `reference/examples/viewmodel.md` | 133 | only when a screen emits a ViewModel |
+| — | — | `reference/examples/permissions.md` | 135 | only for camera/gallery screens |
+| — | — | `reference/examples/icons.md` · `package.md` | 71 · 57 | only when icons / scope checks apply |
+
+The always-loaded ruleset shrinks **2043 → 138 lines (~93%)**; the ~567 lines of examples now load
+à la carte instead of on every stage. Templates (`ui-plan.template.yaml`,
+`ui-plan-preview.template.md`) also gained the `rule_ids` + `examples[]` self-sufficiency fields so
+Stages 3–5 need only the plan plus the compact spine.
+
 ## Install
 
 ```text

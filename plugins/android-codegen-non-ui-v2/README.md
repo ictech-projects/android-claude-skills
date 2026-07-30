@@ -67,6 +67,21 @@ Existing files are never overwritten without asking.
 - **Conditional bootstrap** — the ~2.4k-token network bootstrap templates load only on first-time
   setup, never on subsequent feature generation.
 
+### Structure: v1 → v2
+
+v1 read two large files (`codegen-rules` + `non-ui-rules`, **~1549 lines**) together at planning
+*and* generation. v2 trims the duplicated conventions, extracts the bootstrap, and scopes each read:
+
+| File | v1 lines | v2 lines | when it loads |
+|---|---:|---:|---|
+| `reference/codegen-rules.md` (pipeline: stages, plan structure, order) | 777 | 629 | both stages — duplicated per-layer conventions removed |
+| `reference/non-ui-rules.md` (per-layer coding conventions) | 772 | 516 | **Stage 3 only** — Plan no longer loads it |
+| `reference/network-bootstrap.md` (once-per-project templates) | *(inlined)* | 278 | **Stage 3, only if** a bootstrap marker is missing |
+
+Net effect: **Plan** now reads ~629 lines instead of ~1549, and steady-state feature **Generate**
+skips the 278-line bootstrap entirely — the source of the **~43% fewer repeated rule tokens** per
+plan→generate cycle.
+
 ## Notes
 
 - The real OpenAPI/Scramble export is **not** bundled — you supply `codegen/openapi.json` per project.
