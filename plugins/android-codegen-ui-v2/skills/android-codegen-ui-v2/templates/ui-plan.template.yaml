@@ -1,0 +1,120 @@
+# Stage-2 output STUB for the v2 Compose UI codegen pipeline.
+# Stage 2 (Plan) writes the real codegen/ui-plan.yaml in this shape.
+# Review this file, set every `decision`, then trigger Stage 3.
+#
+# Pipeline:        reference/ui-codegen-pipeline.md
+# Rules (compact): reference/rules-compact.md   (code patterns: reference/examples/*.md)
+# Human-readable:  codegen/ui-plan-preview.md   (mirrors ui-plan-preview.template.md)
+#
+# ⚠️ The `splash` + `leave` screens below are ILLUSTRATIVE. Stage 2 replaces them with the
+#    screens extracted from your design. `splash` shows a minimal, pickerless screen; `leave`
+#    shows a full form + picker.
+#
+# v2 NOTE — SELF-SUFFICIENCY FIELDS: each screen carries `rule_ids` and `examples`. Stages 3–5
+#           read only those, so they never re-read Figma or the full ruleset. `examples` values map
+#           to reference/examples/<value>.md — include `permissions` ONLY when a picker is present.
+
+meta:
+  pipeline: compose-ui-codegen-v2
+  plan_version: 0.0.1
+  base_package: com.ictechnology.app   # AUTO-DERIVED by Stage 2 from app module namespace
+  # Paths below are relative to app/src/main/java/{base_package_path}/
+  ui_root: features/presentation
+  component_package: features/presentation/component
+  drawable_root: app/src/main/res/drawable
+  strings_file: app/src/main/res/values/strings.xml
+  manifest_file: app/src/main/AndroidManifest.xml
+  figma:
+    file_url: "<FIGMA_FILE_URL>"
+    frames: []                          # node ids / frame names analysed
+    screenshotted_frames: []            # frames get_screenshot was called on + why (layout-ambiguous)
+  preconditions_passed: false           # set true once Stage 0 report is green
+
+# ─────────────────────────────────────────────────────────────────────────────
+# GLOBAL DECISIONS — REVIEW REQUIRED
+# ─────────────────────────────────────────────────────────────────────────────
+decisions:
+  - key: state_shape_default
+    rule: R2.4
+    question: Default UiState shape when a screen is not overridden below.
+    options: [data_class, sealed_class]
+    decision: data_class
+
+  - key: spacing_scale
+    rule: R3.5
+    question: Use an existing project Spacing object, or create one?
+    options: [exists, create]
+    decision: pending
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SHARED ASSETS — REVIEW REQUIRED (resolved ONCE, referenced by screens)
+# ─────────────────────────────────────────────────────────────────────────────
+shared:
+  components:
+    - { name: AppButton,          rule: R13.1, subpackage: button,   status: exists,     decision: exists }
+    - { name: AppTextField,       rule: R13.1, subpackage: textfield, status: exists,    decision: exists }
+    - { name: AppLoadingComponent, rule: R13.1, subpackage: loading,  status: exists,    decision: exists }
+    - { name: AppDatePickerField, rule: R13.2, subpackage: picker,    status: create_new, decision: pending }
+    - { name: AppImagePickerField, rule: R13.2, subpackage: picker,   status: create_new, decision: pending }
+  feature_components:
+    - { name: LeaveTypeBottomSheet, placement: presentation/component, used_by: [leave, leave_edit], decision: pending }
+  icons:
+    - { name: ic_common_back_arrow, rule: R14.6, priority: 3_app_existing, file: app/src/main/res/drawable/ic_common_back_arrow.xml, decision: pending }
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SCREENS  (one entry per screen extracted from the design)
+# ─────────────────────────────────────────────────────────────────────────────
+screens:
+  # ===== EXAMPLE 1 — minimal pickerless screen (splash: 1 text, 1 icon, 1 loader) =====
+  - name: splash
+    folder: features/presentation/screen/splash
+    package: com.ictechnology.app.features.presentation.screen.splash
+    state_shape: data_class
+    has_form: false
+    rule_ids: [R2, R3, R4, R5, R6, R7, R9, R11, R12, R13, R14, R16]   # what this screen touches
+    examples: [composable, viewmodel, icons, package]                  # NO permissions — no picker
+    files:
+      - { file: SplashScreen.kt,    kind: screen,    rule: R7.1 }
+      - { file: SplashViewModel.kt, kind: viewmodel, rule: R12.0 }
+      - { file: SplashUiState.kt,   kind: uistate,   rule: R12.4 }
+      - { file: SplashEvent.kt,     kind: event,     rule: R12.6 }
+    components:
+      - { name: AppLoadingComponent, ref: shared }
+    icons:
+      - { name: ic_splash_logo, priority: 1_vector_from_design, decision: pending }
+    permissions: null                                                  # pickerless
+    strings:
+      - splash_label_tagline
+
+  # ===== EXAMPLE 2 — full form screen with enums + document upload (picker) =====
+  - name: leave
+    folder: features/presentation/screen/leave
+    package: com.ictechnology.app.features.presentation.screen.leave
+    state_shape: data_class
+    has_form: true
+    rule_ids: [R2, R3, R4, R5, R6, R7, R9, R11, R12, R13, R14, R15, R16]
+    examples: [composable, viewmodel, icons, permissions, package]     # permissions — has picker
+    files:
+      - { file: LeaveScreen.kt,             kind: screen,     rule: R7.1 }
+      - { file: LeaveViewModel.kt,          kind: viewmodel,  rule: R12.0 }
+      - { file: LeaveUiState.kt,            kind: uistate,    rule: R12.4 }
+      - { file: LeaveEvent.kt,              kind: event,      rule: R12.6 }
+      - { file: LeaveRequestFieldState.kt,  kind: fieldstate, rule: R12.5 }
+      - { file: LeaveDurationType.kt,       kind: enum,       rule: R12.2 }
+      - { file: LeaveTab.kt,                kind: enum,       rule: R12.2 }
+    components:
+      - { name: AppButton,            ref: shared }
+      - { name: AppTextField,         ref: shared }
+      - { name: AppDatePickerField,   ref: shared }
+      - { name: AppImagePickerField,  ref: shared }
+      - { name: LeaveTypeBottomSheet, ref: shared.feature_components }
+    icons:
+      - { name: ic_leave_calendar,   priority: 1_vector_from_design, decision: pending }
+      - { name: ic_leave_attachment, priority: 1_vector_from_design, decision: pending }
+    permissions:
+      trigger: document_picker                                         # R15.1
+      plan: camera+gallery flow + manifest + file_provider_paths.xml (R15.3)
+    strings:
+      - leave_button_submit
+      - leave_placeholder_reason
+      - leave_label_duration
