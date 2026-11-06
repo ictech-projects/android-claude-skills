@@ -12,11 +12,15 @@ Each plugin has its own page — click through for a brief and runnable commands
 | **android-compose-review** | Review a diff / branch / PR; routes Compose & Kotlin idioms to 13 focused skills. | [→ docs](plugins/android-compose-review/README.md) |
 | **android-unit-testing** | Write/review unit tests (Repository · UseCase · ViewModel) to ≥90% coverage; MockK or Mockito. | [→ docs](plugins/android-unit-testing/README.md) |
 | **android-codegen-non-ui** | Generate the data layer (API · Repository · UseCase + Room/Paging/DI) from an OpenAPI spec, Plan→Generate with a review gate. | [→ docs](plugins/android-codegen-non-ui/README.md) |
+| **android-codegen-non-ui-v2** | Token-optimized rewrite of **codegen-non-ui** — same contract, but pipeline rules are split from coding conventions and each stage reads only its slice (~43% fewer repeated rule tokens per cycle). | [→ docs](plugins/android-codegen-non-ui-v2/README.md) |
 | **android-codegen-ui** | Generate Compose UI (screens + ViewModel/UiState, components, icons, permissions) from a Figma design; six-stage pipeline with a review gate. Requires Figma MCP. | [→ docs](plugins/android-codegen-ui/README.md) |
+| **android-codegen-ui-v2** | Token-optimized rewrite of **codegen-ui** — same 16-rule contract, but rules are split from code examples and each stage reads only its slice (~90% fewer repeated rule tokens per screen). Requires Figma MCP. | [→ docs](plugins/android-codegen-ui-v2/README.md) |
 | **android-cert-pinning** | Extract SSL/TLS certificate SPKI pins (`sha256/...`) + expiry/CA metadata for a hostname; handy for refreshing pinning config. | [→ docs](plugins/android-cert-pinning/README.md) |
 
 They compose: **codegen-ui** (Figma→screens) + **codegen-non-ui** (OpenAPI→data) scaffold the
-layers → **unit-testing** tests them → **compose-review** reviews the diff.
+layers → **unit-testing** tests them → **compose-review** reviews the diff. The **`-v2`** codegen
+plugins are drop-in, token-optimized replacements with identical output — prefer them for
+multi-screen / gated runs where stages re-read context.
 
 ## Install
 
@@ -28,6 +32,10 @@ One-time, per machine — add the marketplace, then install the plugins you want
 /plugin install android-unit-testing@android-skills
 /plugin install android-codegen-non-ui@android-skills
 /plugin install android-codegen-ui@android-skills
+# token-optimized variants (same output, cheaper on gated / multi-screen runs):
+/plugin install android-codegen-non-ui-v2@android-skills
+/plugin install android-codegen-ui-v2@android-skills
+
 /plugin install android-cert-pinning@android-skills
 ```
 
@@ -42,6 +50,8 @@ on the `install` command (not on `marketplace add`) to commit the choice for tea
 /android-unit-testing:android-unit-testing LeaveViewModel         # write tests for a class
 /android-codegen-non-ui:android-codegen-non-ui plan               # plan a data layer from codegen/openapi.json
 /android-codegen-ui:android-codegen-ui plan                       # plan Compose screens from a Figma design
+/android-codegen-non-ui-v2:android-codegen-non-ui-v2 plan         # same, token-optimized
+/android-codegen-ui-v2:android-codegen-ui-v2 plan                 # same, token-optimized
 ```
 
 See each plugin's page for full usage.

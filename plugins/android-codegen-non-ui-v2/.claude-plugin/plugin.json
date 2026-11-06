@@ -1,0 +1,5 @@
+{
+  "name": "android-codegen-non-ui-v2",
+  "description": "Token-optimized non-UI data-layer codegen (Retrofit API → Repository → UseCase, + Room/Paging/DI) for Clean Architecture Android apps from a Scramble/Laravel OpenAPI JSON. Same contract as android-codegen-non-ui, but pipeline rules are split from coding conventions and each stage reads only the slice it needs: Plan reads the pipeline only, Generate adds the conventions, and the one-time network bootstrap is loaded only when missing (~43% fewer repeated rule tokens per plan→generate cycle). Two-stage pipeline with a mandatory human review gate. Assumes the com.ictechnology.core library.",
+  "version": "2.0.0"
+}

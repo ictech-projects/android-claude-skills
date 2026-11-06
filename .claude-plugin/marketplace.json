@@ -20,9 +20,19 @@
       "description": "Generate the non-UI data layer (Retrofit API → Repository → UseCase, + Room/Paging/DI) from a Scramble/Laravel OpenAPI JSON. Two-stage Plan→Generate pipeline with a developer review gate. Assumes com.ictechnology.core."
     },
     {
+      "name": "android-codegen-non-ui-v2",
+      "source": "./plugins/android-codegen-non-ui-v2",
+      "description": "Token-optimized non-UI data-layer codegen (Retrofit API → Repository → UseCase, + Room/Paging/DI) from a Scramble/Laravel OpenAPI JSON. Same contract as android-codegen-non-ui, but pipeline rules are split from coding conventions and each stage reads only its slice (~43% fewer repeated rule tokens per plan→generate cycle). Two-stage Plan→Generate pipeline with a developer review gate. Assumes com.ictechnology.core."
+    },
+    {
       "name": "android-codegen-ui",
       "source": "./plugins/android-codegen-ui",
       "description": "Generate Jetpack Compose UI (screens + ViewModel/UiState/Event/FieldState, components, icons, strings, permissions) from a Figma design. Six-stage pipeline with a developer review gate; generates features/presentation only. Requires the Figma MCP server."
+    },
+    {
+      "name": "android-codegen-ui-v2",
+      "source": "./plugins/android-codegen-ui-v2",
+      "description": "Token-optimized Jetpack Compose UI codegen from Figma. Same 16-rule contract as android-codegen-ui, but rules are split from code examples and each stage reads only its slice (~90% fewer repeated rule tokens per screen). Five-stage pipeline with a developer review gate; generates features/presentation only. Requires the Figma MCP server."
     },
     {
       "name": "android-cert-pinning",
