@@ -33,6 +33,11 @@
       "name": "android-codegen-ui-v2",
       "source": "./plugins/android-codegen-ui-v2",
       "description": "Token-optimized Jetpack Compose UI codegen from Figma. Same 16-rule contract as android-codegen-ui, but rules are split from code examples and each stage reads only its slice (~90% fewer repeated rule tokens per screen). Five-stage pipeline with a developer review gate; generates features/presentation only. Requires the Figma MCP server."
+    },
+    {
+      "name": "android-cert-pinning",
+      "source": "./plugins/android-cert-pinning",
+      "description": "Extract SSL/TLS certificate SPKI pins (\"sha256/...\") and metadata for a hostname — full served chain (leaf/intermediate/root) with pins, expiry, issuing CA, and key/signature algorithm. Handy for refreshing certificate-pinning config."
     }
   ]
 }
